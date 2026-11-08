@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Shubh Deepawali – Bhagchand</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Mukta:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #1a0826;
+        --bg2: #3a0f2e;
+        --gold: #ffc83d;
+        --flame: #ff8a1f;
+        --rose: #e0457b;
+        --ink: #fff3dc;
+        --box: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        box-sizing: border-box;
+      }
+      html {
+        scroll-padding-top: env(safe-area-inset-top, 0px);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: radial-gradient(
+          ellipse at 50% 30%,
+          var(--bg2),
+          var(--bg) 70%
+        );
+        color: var(--ink);
+        font-family: "Mukta", sans-serif;
+        overflow-x: hidden;
+      }
+      canvas#fx {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 5;
+      }
+      .stars {
+        position: fixed;
+        inset: 0;
+        background-image:
+          radial-gradient(1.5px 1.5px at 20% 30%, #fff8, transparent),
+          radial-gradient(1px 1px at 70% 20%, #fff8, transparent),
+          radial-gradient(1.5px 1.5px at 40% 75%, #fff6, transparent),
+          radial-gradient(1px 1px at 85% 60%, #fff8, transparent),
+          radial-gradient(1px 1px at 10% 80%, #fff6, transparent);
+        background-size: 300px 300px;
+      }
+      main {
+        position: relative;
+        z-index: 2;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 84px 16px 40px;
+        gap: 8px;
+      }
+      h1 {
+        font-family: "Yatra One", serif;
+        font-weight: 400;
+        text-align: center;
+        font-size: clamp(2.2rem, 8vw, 4.6rem);
+        line-height: 1.1;
+        color: var(--gold);
+        text-shadow:
+          0 0 30px #ff8a1f88,
+          0 3px 0 #8a3b00;
+      }
+      .sub {
+        font-size: clamp(1rem, 3.2vw, 1.35rem);
+        opacity: 0.9;
+        text-align: center;
+      }
+      .scene {
+        perspective: 900px;
+        width: min(92vw, 520px);
+        height: min(70vw, 400px);
+        margin: 6px 0;
+      }
+      .stage {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out;
+      }
+      .floor {
+        position: absolute;
+        left: 50%;
+        top: 60%;
+        width: 360px;
+        height: 360px;
+        margin: -180px;
+        border-radius: 50%;
+        background: repeating-conic-gradient(
+          from 0deg,
+          var(--rose) 0 10deg,
+          var(--gold) 10deg 20deg,
+          #ff6a1f 20deg 30deg,
+          #7b2cbf 30deg 40deg
+        );
+        -webkit-mask: radial-gradient(
+          circle,
+          transparent 28%,
+          #000 29%,
+          #000 38%,
+          transparent 39%,
+          transparent 46%,
+          #000 47%,
+          #000 62%,
+          transparent 63%,
+          transparent 72%,
+          #000 73%,
+          #000 100%
+        );
+        mask: radial-gradient(
+          circle,
+          transparent 28%,
+          #000 29%,
+          #000 38%,
+          transparent 39%,
+          transparent 46%,
+          #000 47%,
+          #000 62%,
+          transparent 63%,
+          transparent 72%,
+          #000 73%,
+          #000 100%
+        );
+        transform: rotateX(72deg) translateZ(-40px);
+        animation: spin 40s linear infinite;
+        opacity: 0.85;
+      }
+      @keyframes spin {
+        to {
+          transform: rotateX(72deg) translateZ(-40px) rotateZ(360deg);
+        }
+      }
+      .glow {
+        position: absolute;
+        left: 50%;
+        top: 42%;
+        width: 340px;
+        height: 340px;
+        margin: -170px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #ffb34755, transparent 65%);
+        transform: translateZ(-20px);
+        animation: pulse 2.4s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.6;
+          transform: translateZ(-20px) scale(1.12);
+        }
+      }
+      .ring {
+        position: absolute;
+        left: 50%;
+        top: 48%;
+        width: 0;
+        height: 0;
+        transform-style: preserve-3d;
+        animation: orbit 18s linear infinite;
+      }
+      @keyframes orbit {
+        to {
+          transform: rotateY(360deg);
+        }
+      }
+      .orb {
+        position: absolute;
+        width: 44px;
+        height: 44px;
+        margin: -22px;
+        transform-style: preserve-3d;
+      }
+      .orb i {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 30%,
+          #fff6c8,
+          var(--gold) 45%,
+          var(--flame)
+        );
+        box-shadow: 0 0 24px #ffb347;
+        animation: counter 18s linear infinite;
+      }
+      @keyframes counter {
+        to {
+          transform: rotateY(-360deg);
+        }
+      }
+      .diya {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 200px;
+        height: 120px;
+        margin: -30px -100px;
+        transform-style: preserve-3d;
+        transform: translateZ(30px);
+      }
+      .bowl {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 70px;
+        border-radius: 0 0 100px 100px/0 0 70px 70px;
+        background: linear-gradient(180deg, #ffd98a, #d9871c 55%, #8a4a0a);
+        box-shadow:
+          inset 0 8px 14px #fff6,
+          0 20px 30px #0008;
+      }
+      .bowl::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        border-radius: 50%;
+        background: radial-gradient(ellipse, #5a2a00, #b8690f);
+      }
+      .bowl::after {
+        content: "";
+        position: absolute;
+        right: -26px;
+        top: -4px;
+        width: 46px;
+        height: 22px;
+        border-radius: 0 40px 40px 0;
+        background: linear-gradient(#e9a63a, #8a4a0a);
+        transform: rotate(-8deg);
+      }
+      .wick {
+        position: absolute;
+        left: 50%;
+        bottom: 60px;
+        width: 5px;
+        height: 14px;
+        margin-left: -2px;
+        background: #2a1000;
+        border-radius: 3px;
+      }
+      .flame {
+        position: absolute;
+        left: 50%;
+        bottom: 70px;
+        width: 44px;
+        height: 90px;
+        margin-left: -22px;
+        border-radius: 50% 50% 50% 50%/65% 65% 35% 35%;
+        background: radial-gradient(
+          ellipse at 50% 75%,
+          #fff 0 10%,
+          #ffe27a 30%,
+          var(--flame) 65%,
+          #e0391a
+        );
+        filter: blur(0.6px);
+        transform-origin: 50% 100%;
+        animation: flick 0.18s ease-in-out infinite alternate;
+        box-shadow: 0 0 50px 18px #ff8a1f99;
+        transition:
+          opacity 0.5s,
+          transform 0.5s;
+      }
+      @keyframes flick {
+        from {
+          transform: scale(1, 1) rotate(-3deg);
+        }
+        to {
+          transform: scale(0.92, 1.08) rotate(3deg);
+        }
+      }
+      .stage.out .flame {
+        opacity: 0;
+      }
+      .hint {
+        font-size: 0.95rem;
+        opacity: 0.75;
+        text-align: center;
+      }
+      .cards {
+        perspective: 1100px;
+        width: min(92vw, 460px);
+        height: 300px;
+        margin-top: 10px;
+      }
+      .card {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.9s cubic-bezier(0.3, 1.3, 0.5, 1);
+        cursor: pointer;
+        border: 0;
+        background: none;
+        color: inherit;
+        font: inherit;
+        display: block;
+        padding: 0;
+      }
+      .card.flip {
+        transform: rotateY(180deg);
+      }
+      .card:focus-visible {
+        outline: 3px solid var(--gold);
+        outline-offset: 6px;
+        border-radius: 20px;
+      }
+      .face {
+        position: absolute;
+        inset: 0;
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        border-radius: 20px;
+        padding: 26px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        gap: 10px;
+        box-shadow:
+          0 30px 60px #0009,
+          inset 0 0 0 2px #ffc83d66;
+      }
+      .front {
+        background: linear-gradient(145deg, #6b1458, #2a0a3d);
+      }
+      .front b {
+        font-family: "Yatra One", serif;
+        font-weight: 400;
+        font-size: 2rem;
+        color: var(--gold);
+      }
+      .back {
+        background: linear-gradient(145deg, #ffe9b0, #ffc83d);
+        color: #3a0f2e;
+        transform: rotateY(180deg);
+      }
+      .back p {
+        font-size: 1.08rem;
+        line-height: 1.5;
+      }
+      .back .by {
+        font-family: "Yatra One", serif;
+        font-size: 1.6rem;
+        color: #8a1f4a;
+      }
+      .lamps {
+        display: flex;
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .lamp {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        border: 2px solid #ffc83d88;
+        background: #2a0a3d;
+        cursor: pointer;
+        position: relative;
+        color: var(--gold);
+        font-size: 1.4rem;
+        transition:
+          transform 0.25s,
+          box-shadow 0.4s,
+          background 0.4s;
+      }
+      .lamp:hover {
+        transform: translateY(-4px) rotateX(20deg);
+      }
+      .lamp:focus-visible {
+        outline: 3px solid var(--gold);
+        outline-offset: 3px;
+      }
+      .lamp.on {
+        background: radial-gradient(
+          circle at 50% 35%,
+          #fff6c8,
+          var(--gold) 50%,
+          var(--flame)
+        );
+        box-shadow: 0 0 28px 6px #ffb347aa;
+      }
+      footer {
+        margin-top: 18px;
+        font-size: 0.95rem;
+        opacity: 0.8;
+        text-align: center;
+      }
+      h1 {
+        background: linear-gradient(
+          100deg,
+          #ffb347,
+          #fff7c2 40%,
+          #ffc83d 60%,
+          #ff8a1f
+        );
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: none;
+        animation: shine 4s linear infinite;
+        filter: drop-shadow(0 3px 0 #8a3b00) drop-shadow(0 0 22px #ff8a1f88);
+      }
+      @keyframes shine {
+        to {
+          background-position: 200% center;
+        }
+      }
+      .sub b {
+        color: var(--gold);
+        font-family: "Yatra One", serif;
+        font-weight: 400;
+        font-size: 1.15em;
+      }
+      #toran {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 90px;
+        z-index: 3;
+        pointer-events: none;
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      #toran::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 6px;
+        background: repeating-linear-gradient(
+          90deg,
+          #ffc83d 0 14px,
+          #e0457b 14px 28px,
+          #ff8a1f 28px 42px
+        );
+      }
+      .bulb {
+        position: absolute;
+        width: 13px;
+        border-radius: 50% 50% 50% 50%/40% 40% 60% 60%;
+        transform-origin: 50% 0;
+        animation:
+          twinkle 1.6s ease-in-out infinite,
+          sway 3s ease-in-out infinite alternate;
+      }
+      .bulb::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 100%;
+        width: 1px;
+        height: var(--h);
+        background: #ffc83d99;
+      }
+      .bulb.fl {
+        background: none !important;
+        box-shadow: none !important;
+        width: auto;
+        font-size: 22px;
+        line-height: 1;
+        animation: sway 3s ease-in-out infinite alternate;
+      }
+      @keyframes twinkle {
+        50% {
+          opacity: 0.45;
+          filter: brightness(0.8);
+        }
+      }
+      @keyframes sway {
+        from {
+          rotate: -4deg;
+        }
+        to {
+          rotate: 4deg;
+        }
+      }
+      .petal {
+        position: fixed;
+        top: -24px;
+        width: 12px;
+        height: 16px;
+        border-radius: 70% 0 70% 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.8;
+        animation: fall linear infinite;
+      }
+      @keyframes fall {
+        to {
+          transform: translate(70px, 112vh) rotate(560deg);
+        }
+      }
+      .face::after {
+        content: "";
+        position: absolute;
+        inset: 9px;
+        border: 1.5px dashed #ffc83d99;
+        border-radius: 14px;
+        pointer-events: none;
+      }
+      .back::after {
+        border-color: #8a1f4a88;
+      }
+      .front {
+        background: radial-gradient(circle at 50% 0%, #a02a6b, #2a0a3d 70%);
+      }
+      .lamp.on {
+        animation: pop 0.5s;
+      }
+      @keyframes pop {
+        40% {
+          transform: scale(1.3) rotate(-8deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .floor,
+        .ring,
+        .orb i,
+        .glow,
+        .flame,
+        h1,
+        .bulb,
+        .petal {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="stars"></div>
+    <canvas id="fx"></canvas>
+    <div id="toran" aria-hidden="true"></div>
+    <div id="petals" aria-hidden="true"></div>
+    <main>
+      <h1>शुभ दीपावली</h1>
+      <p class="sub">Happy Diwali · warm wishes from <b>Bhagchand</b></p>
+
+      <div class="scene" id="scene">
+        <div class="stage" id="stage">
+          <div class="glow"></div>
+          <div class="floor"></div>
+          <div class="ring" id="ring"></div>
+          <div class="diya">
+            <div class="bowl"></div>
+            <div class="wick"></div>
+            <div class="flame"></div>
+          </div>
+        </div>
+      </div>
+      <p class="hint">
+        Move your mouse or finger over the diya, tap anywhere for fireworks
+      </p>
+
+      <div class="lamps" id="lamps" aria-label="Light the five diyas"></div>
+      <p class="hint" id="lampHint">Light all five diyas</p>
+
+      <div class="cards">
+        <button
+          class="card"
+          id="card"
+          aria-label="Open Bhagchand's Diwali wish"
+        >
+          <div class="face front">
+            <span style="font-size: 3rem">🪔</span><b>A wish for you</b
+            ><span>Tap to open</span>
+          </div>
+          <div class="face back">
+            <p>
+              May the light of Diwali fill your home with joy, your heart with
+              peace, and your year with good health and success.
+            </p>
+            <p>
+              Enjoy the sweets, the lights and the laughter with your family!
+            </p>
+            <span class="by">— Bhagchand</span>
+          </div>
+        </button>
+      </div>
+      <footer>Wishing you a bright Deepawali. 🎆</footer>
+    </main>
+    <script>
+      (function () {
+        var stage = document.getElementById("stage"),
+          scene = document.getElementById("scene"),
+          ring = document.getElementById("ring");
+        var reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+        // orbiting glowing lamps in a 3D ring
+        for (var i = 0; i < 8; i++) {
+          var a = i * 45,
+            o = document.createElement("div");
+          o.className = "orb";
+          o.style.transform = "rotateY(" + a + "deg) translateZ(210px)";
+          o.innerHTML = "<i></i>";
+          ring.appendChild(o);
+        }
+        // tilt with pointer
+        function tilt(x, y) {
+          var r = scene.getBoundingClientRect(),
+            px = (x - r.left) / r.width - 0.5,
+            py = (y - r.top) / r.height - 0.5;
+          stage.style.transform =
+            "rotateX(" + (-py * 26 + 8) + "deg) rotateY(" + px * 40 + "deg)";
+        }
+        stage.style.transform = "rotateX(8deg)";
+        if (!reduce) {
+          addEventListener("pointermove", function (e) {
+            tilt(e.clientX, e.clientY);
+          });
+        }
+        // five lamps
+        var lamps = document.getElementById("lamps"),
+          hint = document.getElementById("lampHint"),
+          lit = 0;
+        for (var k = 0; k < 5; k++) {
+          var b = document.createElement("button");
+          b.className = "lamp";
+          b.textContent = "🪔";
+          b.setAttribute("aria-label", "Light diya " + (k + 1));
+          b.onclick = function () {
+            if (this.classList.contains("on")) return;
+            this.classList.add("on");
+            lit++;
+            var r = this.getBoundingClientRect();
+            burst(r.left + r.width / 2, r.top);
+            if (lit == 5) {
+              hint.textContent =
+                "All diyas lit. Shubh Deepawali, Bhagchand wishes you light and joy!";
+              for (var j = 0; j < 6; j++)
+                setTimeout(function () {
+                  burst(
+                    innerWidth * (0.15 + Math.random() * 0.7),
+                    innerHeight * (0.1 + Math.random() * 0.4),
+                  );
+                }, j * 350);
+            } else hint.textContent = 5 - lit + " more to go";
+          };
+          lamps.appendChild(b);
+        }
+        // flip card
+        var card = document.getElementById("card");
+        card.onclick = function () {
+          card.classList.toggle("flip");
+          if (card.classList.contains("flip")) {
+            var r = card.getBoundingClientRect();
+            burst(r.left + r.width / 2, r.top);
+          }
+        };
+        // fireworks
+        var c = document.getElementById("fx"),
+          g = c.getContext("2d"),
+          P = [];
+        function size() {
+          var d = devicePixelRatio || 1;
+          c.width = innerWidth * d;
+          c.height = innerHeight * d;
+          g.setTransform(d, 0, 0, d, 0, 0);
+        }
+        size();
+        addEventListener("resize", size);
+        var cols = [
+          "#ffc83d",
+          "#ff8a1f",
+          "#e0457b",
+          "#fff3dc",
+          "#b66bff",
+          "#4de1c1",
+        ];
+        function burst(x, y) {
+          var col = cols[Math.floor(Math.random() * cols.length)],
+            n = reduce ? 10 : 60;
+          for (var i = 0; i < n; i++) {
+            var a = (Math.PI * 2 * i) / n,
+              s = 2 + Math.random() * 3.5;
+            P.push({
+              x: x,
+              y: y,
+              vx: Math.cos(a) * s,
+              vy: Math.sin(a) * s,
+              l: 1,
+              c:
+                Math.random() < 0.7
+                  ? col
+                  : cols[Math.floor(Math.random() * cols.length)],
+            });
+          }
+        }
+        addEventListener("pointerdown", function (e) {
+          if (!e.target.closest("button")) burst(e.clientX, e.clientY);
+        });
+        function loop() {
+          g.clearRect(0, 0, innerWidth, innerHeight);
+          for (var i = P.length - 1; i >= 0; i--) {
+            var p = P[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.05;
+            p.vx *= 0.985;
+            p.l -= 0.013;
+            if (p.l <= 0) {
+              P.splice(i, 1);
+              continue;
+            }
+            g.globalAlpha = p.l;
+            g.fillStyle = p.c;
+            g.beginPath();
+            g.arc(p.x, p.y, 2.2, 0, 6.283);
+            g.fill();
+          }
+          g.globalAlpha = 1;
+          requestAnimationFrame(loop);
+        }
+        loop();
+        // toran garland + falling petals
+        (function () {
+          var t = document.getElementById("toran"),
+            bc = ["#ffc83d", "#ff6a8a", "#ff8a1f", "#fff3dc", "#b66bff"],
+            step = 44,
+            seg = 264;
+          for (var x = 10, i = 0; x < innerWidth; x += step, i++) {
+            var y = 10 + 34 * Math.sin(Math.PI * ((x % seg) / seg)),
+              b = document.createElement("div");
+            if (x % seg < step) {
+              b.className = "bulb fl";
+              b.textContent = "🌼";
+              b.style.top = "2px";
+              b.style.setProperty("--h", "0px");
+            } else {
+              b.className = "bulb";
+              var c = bc[i % 5];
+              b.style.cssText =
+                "top:" +
+                y +
+                "px;height:19px;background:" +
+                c +
+                ";box-shadow:0 0 14px 3px " +
+                c +
+                ";animation-delay:" +
+                (i % 5) * 0.3 +
+                "s";
+              b.style.setProperty("--h", y + "px");
+            }
+            b.style.left = x + "px";
+            t.appendChild(b);
+          }
+          var p = document.getElementById("petals"),
+            pc = ["#ff8a1f", "#ffc83d", "#e0457b", "#ffb347"];
+          for (var j = 0; j < 18; j++) {
+            var e = document.createElement("i");
+            e.className = "petal";
+            e.style.left = Math.random() * 100 + "%";
+            e.style.background = pc[j % 4];
+            e.style.animationDuration = 9 + Math.random() * 9 + "s";
+            e.style.animationDelay = -Math.random() * 14 + "s";
+            e.style.transform = "scale(" + (0.7 + Math.random() * 0.9) + ")";
+            p.appendChild(e);
+          }
+        })();
+        // welcome burst
+        if (!reduce)
+          setTimeout(function () {
+            burst(innerWidth * 0.25, innerHeight * 0.2);
+            burst(innerWidth * 0.75, innerHeight * 0.25);
+          }, 600);
+      })();
+    </script>
+  </body>
+</html>
